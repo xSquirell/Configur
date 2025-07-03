@@ -6,8 +6,16 @@ CPU_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRyUL7uhyh1AFer0Q1f8
 MB_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRyUL7uhyh1AFer0Q1f8my16H5XZHYWT_HwYXn59TreT19xQxSwBNp3Epy7baaAiR0KlLwiREiR5zu/pub?gid=0&single=true&output=csv"
 CH_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRyUL7uhyh1AFer0Q1f8my16H5XZHYWT_HwYXn59TreT19xQxSwBNp3Epy7baaAiR0KlLwiREiR5zu/pub?gid=73405903&single=true&output=csv"
 
-# --- Загрузка данных ---
-cpu_df = pd.read_csv(CPU_URL)
+# --- Загрузка данных с кешированием ---
+@st.cache_data(show_spinner=False)
+def load_data():
+    cpu = pd.read_csv(CPU_URL)
+    mb  = pd.read_csv(MB_URL)
+    ch  = pd.read_csv(CH_URL)
+    return cpu, mb, ch
+
+cpu_df, mb_df, ch_df = load_data()
+# при изменении данных в Google нужно обновить кеш (например, Ctrl+R)CPU_URL)
 mb_df  = pd.read_csv(MB_URL)
 ch_df  = pd.read_csv(CH_URL)
 
