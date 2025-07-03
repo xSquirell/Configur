@@ -102,11 +102,24 @@ total_price = price_cpu + price_mb + price_ch
 spec_cpu = f"{cpu_row[sock_col]}, {int(cpu_row[cores_col])}/{int(cpu_row[thr_col])}, @{cpu_row[freq_col]}GHz"
 spec_mb  = f"{mb_row[mb_sock_col]}, {mb_row[mb_cpu_count]} CPU, {mb_row[mb_form_col]}"
 # Корпус specs
-fb = int(ch_row[front_bays]); ib = int(ch_row[inner_bays]); rb = int(ch_row[rear_bays])
+# Функция безопасного преобразования в int
+import math
+
+def to_int(val):
+    try:
+        if pd.isna(val): return 0
+        # строковые числа вроде '0', '2'
+        return int(float(val))
+    except:
+        return 0
+
+fb = to_int(ch_row[front_bays])
+ib = to_int(ch_row[inner_bays])
+rb = to_int(ch_row[rear_bays])
 # Подробности корзин с типом и форм-фактором
-front_detail = f"{fb}×({ch_row[type_fb]}, {ch_row[ff_fb]})"
-inner_detail = f"{ib}×(fixed, {ch_row[ff_ib]})"  # inner slots are fixed
-rear_detail  = f"{rb}×({ch_row[type_rb]}, {ch_row[ff_rb]})"
+front_detail = f"{fb}×({ch_row[type_fb]}, {ch_row[ff_fb]})" if fb > 0 else "0"
+inner_detail = f"{ib}×({ch_row[type_fb]}, {ch_row[ff_ib]})" if ib > 0 else "0"
+rear_detail  = f"{rb}×({ch_row[type_rb]}, {ch_row[ff_rb]})" if rb > 0 else "0"
 spec_ch = (
     f"{ch_row[ch_dims_col]}, FF {ch_row[ch_ff_col]}, корзины: "
     f"фронтальная {front_detail}; "
@@ -115,6 +128,66 @@ spec_ch = (
 )
 
 # DataFrame с дополнительным полем Count
+records = [
+    {
+        'Партномер': cpu_row[code_col],
+        'Тип': 'CPU',
+        'Наименонование': cpu_row[proc_col],
+        'Характеристики': spec_cpu,
+        'Количество': cpu_count,
+        'Цена': price_cpu
+    },
+    {
+        'Партномер': mb_row[mb_code_col],
+        'Тип': 'MB',
+        'Наименонование': mb_row[mb_name_col],
+        'Характеристики': spec_mb,
+        'Количество': 1,
+        'Цена': price_mb
+    },
+    {
+        'Партномер': ch_row[ch_code_col],
+        'Тип': 'CH',
+        'Наименонование': ch_row[ch_name_col],
+        'Характеристики': spec_ch + f", PSU: {ch_row['PSU']} {ch_row['PSU power']}W",
+        'Количество': 1,
+        'Цена': price_ch
+    }
+]
+# Вывод таблицы без индекса и с колонкой Count
+st.table(records)
+# Итоговая цена
+st.markdown(f"**Итого:** {total_price}")
+records = [
+    {
+        'Партномер': cpu_row[code_col],
+        'Тип': 'CPU',
+        'Наименонование': cpu_row[proc_col],
+        'Характеристики': spec_cpu,
+        'Количество': cpu_count,
+        'Цена': price_cpu
+    },
+    {
+        'Партномер': mb_row[mb_code_col],
+        'Тип': 'MB',
+        'Наименонование': mb_row[mb_name_col],
+        'Характеристики': spec_mb,
+        'Количество': 1,
+        'Цена': price_mb
+    },
+    {
+        'Партномер': ch_row[ch_code_col],
+        'Тип': 'CH',
+        'Наименонование': ch_row[ch_name_col],
+        'Характеристики': spec_ch + f", PSU: {ch_row['PSU']} {ch_row['PSU power']}W",
+        'Количество': 1,
+        'Цена': price_ch
+    }
+]
+# Вывод таблицы без индекса и с колонкой Count
+st.table(records)
+# Итоговая цена
+st.markdown(f"**Итого:** {total_price}")
 records = [
     {
         'Партномер': cpu_row[code_col],
