@@ -74,6 +74,9 @@ selected_cpu = st.selectbox('Процессор', t_c)
 cpu_row = cpu_df[cpu_df[proc_col]==selected_cpu].iloc[0]
 # 2) Выбор MB
 compatible_mb = mb_df[mb_df['sock_norm']==cpu_row['sock_norm']]
+if compatible_mb.empty:
+    st.error('Нет совместимых материнских плат для выбранного процессора.')
+    st.stop()
 selected_mb = st.selectbox('Материнская плата', compatible_mb[mb_name_col].tolist())
 mb_row = compatible_mb[compatible_mb[mb_name_col]==selected_mb].iloc[0]
 # 3) Кол-во CPU
@@ -102,7 +105,7 @@ spec_mb  = f"{mb_row[mb_sock_col]}, {mb_row[mb_cpu_count]} CPU, {mb_row[mb_form_
 fb = int(ch_row[front_bays]); ib = int(ch_row[inner_bays]); rb = int(ch_row[rear_bays])
 # Подробности корзин с типом и форм-фактором
 front_detail = f"{fb}×({ch_row[type_fb]}, {ch_row[ff_fb]})"
-inner_detail = f"{ib}×(Fixed, {ch_row[ff_ib]})"  # inner slots are fixed
+inner_detail = f"{ib}×(fixed, {ch_row[ff_ib]})"  # inner slots are fixed
 rear_detail  = f"{rb}×({ch_row[type_rb]}, {ch_row[ff_rb]})"
 spec_ch = (
     f"{ch_row[ch_dims_col]}, FF {ch_row[ch_ff_col]}, корзины: "
